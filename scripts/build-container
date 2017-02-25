@@ -1,0 +1,101 @@
+#!/bin/bash
+set -e
+
+arg0="${0##*/}"
+dir0="${0%/*}"
+
+# Defaults
+os="debian:8"
+
+# Parse command-line
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+	--)
+	    shift
+	    break
+	    ;;
+	--os=*)
+	    os="${1#--os=}"
+	    shift
+	    ;;
+	--os)
+	    os="$2"
+	    shift 2
+	    ;;
+	-*)
+	    echo "$arg0: unrecognized command-line switch: $1" >&2
+	    exit 1
+	    ;;
+	*)
+	    echo "usage: $arg0 --os=BASE_OS" >&2
+	    exit 1
+    esac
+done
+
+########################################################################################################################
+# Given a docker instance name for an OS, return the OS upon which the instance is based.  This info is used to select
+# the template for installing system software (e.g., Debian-based systems use apt-get and Fedora/RedHat systems use yum.
+base_operating_system() {
+    local os="$1"
+    case "$os" in
+	debian*|*/debian*|ubuntu*|*/ubuntu*|*/mint*)
+	    echo debian
+	    ;;
+	fedora*|*/fedora*)
+	    echo fedora
+	    ;;
+	*)
+	    echo "$arg0: unrecognized operating system: $os" >&2
+	    exit 1
+	    ;;
+    esac
+}
+
+########################################################################################################################
+# Create a docker image for basic ROSE development.  This image has all the prerequisites for building ROSE although
+# it relies on RMC to install some of them in the container rather than the image.
+build_devel_container() {
+    local os="$1" output_tag="$2"
+    os_base=$(base_operating_system "$os")
+
+    # Prepare to create the docker image
+    local tempdir=$(mktemp --directory --tmpdir "rose-XXXXXXXXXX")
+    trap "rm -rf $tempdir" EXIT
+    sed "s/\\\${os}/$os/g" <"$dir0/../templates/$os_base-devel" >"$tempdir/Dockerfile"
+    cp "$dir0/../templates/docker-ignore" "$tempdir/.dockerignore"
+
+    echo "about to run 'sudo docker build -t $output_tag .' in $tempdir..."
+    (cd "$tempdir" && sudo docker build -t "$output_tag" .)
+    rm -rf "$tempdir"
+    trap - EXIT
+}
+
+########################################################################################################################
+# Create a docker image suitable for running matrix tests.  This involves installing the matrix testing tools, which
+# are in the $ROSE/projects/MatrixTesting directory. To that end, we start with a development image and extend it by
+# downloading and compiling ROSE with no frontend languages.
+build_matrix_container() {
+    local devel_image_tag="$1" output_tag="$2"
+
+    local tempdir=$(mktemp --directory --tmpdir "rose-XXXXXXXXXX")
+    trap "rm -rf $tempdir" EXIT
+    sed "s/\\\${base_image}/$devel_image_tag/g" <"$dir0/../templates/matrix-testing" >"$tempdir/Dockerfile"
+    cp "$dir0/../templates/docker-ignore" "$tempdir/.dockerignore"
+
+    echo "about to run 'sudo docker build -t $output_tag .' in $tempdir..."
+    (cd "$tempdir" && sudo docker build -t "$output_tag" .)
+
+    rm -rf "$tempdir"
+    trap - EXIT
+}
+    
+########################################################################################################################
+
+devel_image_tag="$(echo "$os" |tr [:/] __)-rose-devel"
+build_devel_container "$os" "$devel_image_tag"
+echo "to run this container, say: sudo docker run -it $devel_image_tag"
+
+matrix_image_tag="$(echo "$os" |tr [:/] __)-rose-matrix"
+build_matrix_container "$devel_image_tag" "$matrix_image_tag"
+echo "to run this container, say: sudo docker run -it $matrix_image_tag"
+

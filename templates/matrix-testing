@@ -1,0 +1,28 @@
+# Docker file to build a matrix testing image -*- shell-script -*-
+
+from ${base_image}
+
+# Download ROSE source code
+run sudo --login -u rose bash -c \
+    "git clone --progress https://github.com/rose-compiler/rose-develop matrix-tools-source"
+
+# Configure the ROSE source tree
+run sudo --login -u rose bash -login -c \
+    "cd matrix-tools-source && ./build"
+
+# Create and configure the build tree, installing ROSE prerequisites
+run sudo --login -u rose bash -login -c					\
+    "mkcd matrix-tools-build &&						\
+     env LANGUAGES=none rmc init --batch ../matrix-tools-source &&	\
+     rmc --install=yes true"
+
+# Configure and build ROSE and the matrix testing tools
+run sudo --login -u rose bash -login -c		\
+    "cd matrix-tools-build &&			\
+     rmc config &&				\
+     rmc make -C src &&				\
+     rmc make -C projects/MatrixTesting"
+
+# Make sure the database is reachable. This will either print a test record or fail.
+run sudo --login -u rose bash -login -c \
+    "rmc -C matrix-tools-build/projects/MatrixTesting ./matrixNextTest"

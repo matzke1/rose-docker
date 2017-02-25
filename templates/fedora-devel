@@ -1,0 +1,54 @@
+# Docker image creation -*- shell-script -*-
+# See debian-devel for better comments
+
+#from fedora:latest
+from ${os}
+
+# Standard ROSE dependencies
+run yum -y update
+run yum -y group install "Development Tools"
+run yum -y install wget tar
+run yum -y install cmake
+run yum -y install java-1.8.0-openjdk-devel
+run yum -y install python-devel
+run yum -y install graphviz
+run yum -y install gcc-c++ flex bison
+run yum -y install bzip2 zlib-devel
+run yum -y install libtool libtool-ltdl-devel byacc
+run yum -y install libpqxx-devel
+
+# Create a "rose" user
+run yum -y install sudo passwd
+run										\
+    groupadd -f sudo &&								\
+    useradd -c "ROSE Developer" -d /home/rose -m -G sudo -s /bin/bash rose &&	\
+    (echo rose; echo rose) |passwd rose &&					\
+    echo "rose ALL = NOPASSWD: ALL" >>/etc/sudoers
+
+# Install ROSE Meta Config (removal is optional)
+run sudo --login -u rose bash -c				\
+    'export SPOCK_OPTDIR=$HOME/.spock/installed/container;	\
+     git clone https://github.com/matzke1/rmc-spock &&		\
+     cd rmc-spock && 						\
+    ./scripts/bootstrap.sh'
+
+run sudo --login -u rose bash -c \
+    "rm -rf rmc-spock"
+
+# Install extra useful tools (all optional)
+run sudo --login -u rose bash -c							\
+    'git clone https://github.com/matzke1/DeveloperScripts &&				\
+     cd DeveloperScripts &&								\
+     echo "export SPOCK_OPTDIR=$HOME/.spock/installed/container" >>bash/environment &&	\
+     bash ./install.sh </dev/null'
+
+run yum -y install vim hostname
+
+# Commented out because Fedora requires systemd in order to start/stop services, which doesn't
+# work in a docker container since pid 1 is not systemd.  Better to use an OS that doesn't
+# depend on systemd. WARNING: If you log out of the docker "run" environment you will lose all
+# your work.  You can use nsenter instead, but it requires quite a few switches and superuser
+# priviledge to use it.
+#run yum -y install fuse-sshfs openssh-server
+
+cmd sudo --login -u rose
