@@ -36,6 +36,9 @@ run apt-get -y install libpqxx-dev
 # "ps2pdf" is an undocumented ROSE dependency (see JIRA issue ROSE-774, 2017-02-20)
 run apt-get -y install ghostscript
 
+# Perldoc and groff are needed to display man pages from ROSE command --help
+run apt-get -y install perl-doc groff
+
 ########################################################################################################################
 # Create user and groups
 ########################################################################################################################
@@ -48,6 +51,10 @@ run echo "rose ALL = NOPASSWD: ALL" >>/etc/sudoers
 ########################################################################################################################
 # Install RMC
 ########################################################################################################################
+
+# Insert RMC downloads. This step is optional
+add spock-downloads /home/rose/.spock/var/downloads
+run chown -R rose:rose /home/rose/.spock
 
 # Override spock's use of hostname as part of the $SPOCK_OPTDIR directory because it changes from container to container.
 # Although docker allows setting the hostname when a container runs, I don't see a way to set the hostname when the

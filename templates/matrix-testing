@@ -2,27 +2,29 @@
 
 from ${base_image}
 
-# Download ROSE source code
-run sudo --login -u rose bash -c \
-    "git clone --progress https://github.com/rose-compiler/rose-develop matrix-tools-source"
+# Insert ROSE source code
+add rose /home/rose/rose-source
+run chown -R rose:rose /home/rose/rose-source
+run sudo --login -u rose bash -login -c \
+    'cd rose-source && ./scripts/smgit clean -dfx'
 
 # Configure the ROSE source tree
 run sudo --login -u rose bash -login -c \
-    "cd matrix-tools-source && ./build"
+    'cd rose-source && ./build'
 
 # Create and configure the build tree, installing ROSE prerequisites
-run sudo --login -u rose bash -login -c					\
-    "mkcd matrix-tools-build &&						\
-     env LANGUAGES=none rmc init --batch ../matrix-tools-source &&	\
-     rmc --install=yes true"
+run sudo --login -u rose bash -login -c				\
+    'mkcd matrix-tools-build &&					\
+     env LANGUAGES=none rmc init --batch ../rose-source &&	\
+     rmc --install=yes true'
 
 # Configure and build ROSE and the matrix testing tools
 run sudo --login -u rose bash -login -c		\
-    "cd matrix-tools-build &&			\
+    'cd matrix-tools-build &&			\
      rmc config &&				\
      rmc make -C src &&				\
-     rmc make -C projects/MatrixTesting"
+     rmc make -C projects/MatrixTesting'
 
-# Make sure the database is reachable. This will either print a test record or fail.
-run sudo --login -u rose bash -login -c \
-    "rmc -C matrix-tools-build/projects/MatrixTesting ./matrixNextTest"
+# Run matrix tests in an infinite loop
+cmd sudo --login -u rose bash -login -c \
+     '$HOME/DeveloperScripts/rose-devel-tools/matrixRunManyTestsBatch.sh'

@@ -26,6 +26,9 @@ run										\
     echo "rose ALL = NOPASSWD: ALL" >>/etc/sudoers
 
 # Install ROSE Meta Config (removal is optional)
+add spock-downloads /home/rose/.spock/var/downloads
+run chown -R rose:rose /home/rose/.spock
+
 run sudo --login -u rose bash -c				\
     'export SPOCK_OPTDIR=$HOME/.spock/installed/container;	\
      git clone https://github.com/matzke1/rmc-spock &&		\
