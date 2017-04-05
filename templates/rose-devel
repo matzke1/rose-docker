@@ -1,0 +1,37 @@
+# Docker file to build a ROSE development image -*- shell-script -*-
+
+from ${base_image}
+
+# Insert ROSE source code
+add rose /home/rose/rose-source
+run chown -R rose:rose /home/rose/rose-source
+run sudo --login -u rose bash -login -c \
+    'cd rose-source && ./scripts/smgit clean -dfx'
+
+# Configure the ROSE source tree
+run sudo --login -u rose bash -login -c \
+    'cd rose-source && ./build'
+
+# Create the build tree with a basic RMC config file
+# Java is disabled because it cannot be downloaded automatically due to Oracle license requirements.
+# Yices is disabled because upstream removed it in favor of later versions not supported by ROSE.
+run sudo --login -u rose bash -login -c			\
+    'mkcd rose-build &&					\
+     JAVA=none YICES=none rmc init --batch ../rose-source &&	\
+     rmc --install=yes true'
+
+# Configure and build ROSE
+run sudo --login -u rose bash -login -c		\
+    'cd rose-build &&				\
+     rmc config &&				\
+     rmc make -C src'
+
+# Test that ROSE works
+run sudo --login -u rose bash -login -c		\
+    'cd rose-build &&				\
+     rmc make -C tests/smoke check-smoke &&	\
+     rmc make -C tests/nonsmoke check-nonsmoke'
+
+# Install ROSE so tools can use it
+run sudo --login -u rose bash -login -c			\
+    'rmc -C rose-build make install-rose-library'

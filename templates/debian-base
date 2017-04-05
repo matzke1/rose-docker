@@ -1,7 +1,10 @@
 # Docker image creation -*- shell-script -*-
 #
-# I am using lower-case Docker instructions in this file contrary to docker conventions. upper-case is silly
-# since all lines in this file are docker instructions anyway.
+# This file describes a docker image suitable for doing ROSE development. It contains all prerequisites needed
+# by ROSE except for thos managed by Spock.  It does not contain ROSE source code.
+#
+# I am using lower-case Docker instructions in this file contrary to docker conventions. Upper-case to accent
+# the docker-specific words is silly since all lines in this file must be docker instructions.
 
 
 ########################################################################################################################
@@ -38,6 +41,9 @@ run apt-get -y install ghostscript
 
 # Perldoc and groff are needed to display man pages from ROSE command --help
 run apt-get -y install perl-doc groff
+
+# Optional things used by binary analysis
+run apt-get -y install libgcrypt20-dev binwalk
 
 ########################################################################################################################
 # Create user and groups

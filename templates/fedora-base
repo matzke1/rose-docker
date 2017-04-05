@@ -1,5 +1,5 @@
 # Docker image creation -*- shell-script -*-
-# See debian-devel for better comments
+# See debian-base for better comments
 
 #from fedora:latest
 from ${os}
@@ -16,6 +16,9 @@ run yum -y install gcc-c++ flex bison
 run yum -y install bzip2 zlib-devel
 run yum -y install libtool libtool-ltdl-devel byacc
 run yum -y install libpqxx-devel
+
+# Additional dependencies for binary analysis
+run yum -y install libgcrypt-devel binwalk xz
 
 # Create a "rose" user
 run yum -y install sudo passwd
