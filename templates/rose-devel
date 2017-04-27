@@ -6,7 +6,7 @@ from ${base_image}
 add rose /home/rose/rose-source
 run chown -R rose:rose /home/rose/rose-source
 run sudo --login -u rose bash -login -c \
-    'cd rose-source && ./scripts/smgit clean -dfx'
+    'cd rose-source && ./scripts/smgit clean -dfx || git clean -dfx'
 
 # Configure the ROSE source tree
 run sudo --login -u rose bash -login -c \
