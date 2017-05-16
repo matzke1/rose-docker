@@ -43,7 +43,7 @@ run apt-get -y install ghostscript
 run apt-get -y install perl-doc groff
 
 # Optional things used by binary analysis
-run apt-get -y install libgcrypt20-dev binwalk
+run apt-get -y install libgcrypt20-dev binwalk libfcgi-dev
 
 ########################################################################################################################
 # Create user and groups
@@ -65,10 +65,10 @@ run chown -R rose:rose /home/rose/.spock
 # Override spock's use of hostname as part of the $SPOCK_OPTDIR directory because it changes from container to container.
 # Although docker allows setting the hostname when a container runs, I don't see a way to set the hostname when the
 # image is being built. We'll make the value permanent when we install the DeveloperScripts, below.
-run sudo --login -u rose bash -c				\
-    'export SPOCK_OPTDIR=$HOME/.spock/installed/container;	\
-     git clone https://github.com/matzke1/rmc-spock &&		\
-     cd rmc-spock &&						\
+run sudo --login -u rose bash -c			\
+    'export SPOCK_HOSTNAME=container;			\
+     git clone https://github.com/matzke1/rmc-spock &&	\
+     cd rmc-spock &&					\
      ./scripts/bootstrap.sh'
 
 run sudo --login -u rose bash -c \
@@ -80,10 +80,10 @@ run sudo --login -u rose bash -c \
 
 # Install Robb's development environment. These are various commands (like "mkcd" short for "mkdir" followed by "cd"),
 # a more informative bash prompt including a bell when a long-running command completes, config files for Emacs, etc.
-run sudo --login -u rose bash -c							\
-    'git clone https://github.com/matzke1/DeveloperScripts && 				\
-     cd DeveloperScripts &&								\
-     echo "export SPOCK_OPTDIR=$HOME/.spock/installed/container" >>bash/environment &&	\
+run sudo --login -u rose bash -c					\
+    'git clone https://github.com/matzke1/DeveloperScripts &&		\
+     cd DeveloperScripts &&						\
+     echo "export SPOCK_HOSTNAME=container" >>bash/environment &&	\
      bash ./install.sh </dev/null'
 
 # Install a real editor besides the toy "nano". Debian has additional real editors and IDEs, but "vim" is small.

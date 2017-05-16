@@ -8,7 +8,7 @@ dir0="${0%/*}"
 image_type=developer
 os="debian:8"
 rose_source="https://github.com/rose-compiler/rose-develop"
-spock_download_dir="$HOME/.spock/downloads"
+spock_download_dir="$HOME/.spock/var/downloads"
 
 # Parse command-line
 while [ "$#" -gt 0 ]; do

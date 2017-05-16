@@ -18,7 +18,7 @@ run yum -y install libtool libtool-ltdl-devel byacc
 run yum -y install libpqxx-devel
 
 # Additional dependencies for binary analysis
-run yum -y install libgcrypt-devel binwalk xz
+run yum -y install libgcrypt-devel binwalk xz fcgi-devel
 
 # Create a "rose" user
 run yum -y install sudo passwd
@@ -32,20 +32,20 @@ run										\
 add spock-downloads /home/rose/.spock/var/downloads
 run chown -R rose:rose /home/rose/.spock
 
-run sudo --login -u rose bash -c				\
-    'export SPOCK_OPTDIR=$HOME/.spock/installed/container;	\
-     git clone https://github.com/matzke1/rmc-spock &&		\
-     cd rmc-spock && 						\
+run sudo --login -u rose bash -c			\
+    'export SPOCK_HOSTNAME=container;			\
+     git clone https://github.com/matzke1/rmc-spock &&	\
+     cd rmc-spock &&					\
     ./scripts/bootstrap.sh'
 
 run sudo --login -u rose bash -c \
     "rm -rf rmc-spock"
 
 # Install extra useful tools (all optional)
-run sudo --login -u rose bash -c							\
-    'git clone https://github.com/matzke1/DeveloperScripts &&				\
-     cd DeveloperScripts &&								\
-     echo "export SPOCK_OPTDIR=$HOME/.spock/installed/container" >>bash/environment &&	\
+run sudo --login -u rose bash -c					\
+    'git clone https://github.com/matzke1/DeveloperScripts &&		\
+     cd DeveloperScripts &&						\
+     echo "export SPOCK_HOSTNAME=container" >>bash/environment &&	\
      bash ./install.sh </dev/null'
 
 run yum -y install vim hostname

@@ -13,9 +13,11 @@ run sudo --login -u rose bash -login -c \
     'cd rose-source && ./build'
 
 # Create and configure the build tree, installing ROSE prerequisites
+# Java is disabled because it cannot be downloaded automatically due to Oracle license requirements.
+# Yices is disabled because upstream removed it in favor of later versions not supported by ROSE.
 run sudo --login -u rose bash -login -c				\
     'mkcd matrix-tools-build &&					\
-     env LANGUAGES=none rmc init --batch ../rose-source &&	\
+     env JAVA=none YICES=none LANGUAGES=none rmc init --batch ../rose-source &&	\
      rmc --install=yes true'
 
 # Configure and build ROSE and the matrix testing tools
