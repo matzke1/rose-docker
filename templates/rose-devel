@@ -29,8 +29,8 @@ run sudo --login -u rose bash -login -c		\
 # Test that ROSE works
 run sudo --login -u rose bash -login -c		\
     'cd rose-build &&				\
-     rmc make -C tests/smoke check-smoke &&	\
-     rmc make -C tests/nonsmoke check-nonsmoke'
+     rmc make -C tests/smoke check &&		\
+     rmc make -C tests/nonsmoke check'
 
 # Install ROSE so tools can use it
 run sudo --login -u rose bash -login -c			\
