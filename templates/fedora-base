@@ -20,6 +20,10 @@ run yum -y install libpqxx-devel
 # Additional dependencies for binary analysis
 run yum -y install libgcrypt-devel binwalk xz fcgi-devel
 
+# Dependencies for build systems
+run yum -y install fuse-devel
+
+
 # Create a "rose" user
 run yum -y install sudo passwd
 run										\

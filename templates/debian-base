@@ -45,6 +45,9 @@ run apt-get -y install perl-doc groff
 # Optional things used by binary analysis
 run apt-get -y install libgcrypt20-dev binwalk libfcgi-dev
 
+# Dependencies for build systems
+run apt-get -y install libfuse-dev
+
 ########################################################################################################################
 # Create user and groups
 ########################################################################################################################
