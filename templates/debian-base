@@ -46,7 +46,7 @@ run apt-get -y install perl-doc groff
 run apt-get -y install libgcrypt20-dev binwalk libfcgi-dev
 
 # Dependencies for build systems
-run apt-get -y install libfuse-dev
+run apt-get -y install libfuse-dev patchelf
 
 ########################################################################################################################
 # Create user and groups

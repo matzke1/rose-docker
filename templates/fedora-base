@@ -21,7 +21,7 @@ run yum -y install libpqxx-devel
 run yum -y install libgcrypt-devel binwalk xz fcgi-devel
 
 # Dependencies for build systems
-run yum -y install fuse-devel
+run yum -y install fuse-devel patchelf
 
 
 # Create a "rose" user
